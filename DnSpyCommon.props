@@ -6,12 +6,12 @@
         - .github/workflows/build.yml
         - dnSpy/dnSpy/app.config (supportedRuntime, .NET Framework only)
     NOTE: Update the ABOVE files when TargetFrameworks is updated -->
-    <TargetFrameworks>net472;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net472;net6.0-windows</TargetFrameworks>
     <IsDotNetFramework>false</IsDotNetFramework>
     <IsDotNetCore>false</IsDotNetCore>
     <IsSelfContainedDotNetCore>false</IsSelfContainedDotNetCore>
-    <IsDotNetFramework Condition=" !$(TargetFramework.StartsWith(netcoreapp)) ">true</IsDotNetFramework>
-    <IsDotNetCore Condition=" $(TargetFramework.StartsWith(netcoreapp)) ">true</IsDotNetCore>
+    <IsDotNetFramework Condition=" !$(TargetFramework.StartsWith(net6)) ">true</IsDotNetFramework>
+    <IsDotNetCore Condition=" $(TargetFramework.StartsWith(net6)) ">true</IsDotNetCore>
     <IsSelfContainedDotNetCore Condition=" '$(IsDotNetCore)' == 'true' ">true</IsSelfContainedDotNetCore>
     <Features>strict;nullablePublicOnly</Features>
     <LangVersion>8.0</LangVersion>
@@ -21,7 +21,7 @@
     <!-- Make sure we don't have to publish each extension to get all their refs -->
     <CopyLocalLockFileAssemblies Condition=" '$(IsDotNetCore)' == 'true' ">true</CopyLocalLockFileAssemblies>
     <!-- If this gets updated, also update .github/workflows/build.yml and build.ps1 -->
-    <DnSpyRuntimeIdentifiers>win-x86;win-x64</DnSpyRuntimeIdentifiers>
+    <DnSpyRuntimeIdentifiers>win-arm64</DnSpyRuntimeIdentifiers>
     <SatelliteResourceLanguages>cs;de;es;es-ES;fa;fr;hu;it;pt-BR;pt-PT;ru;tr;uk;zh-CN</SatelliteResourceLanguages>
 
     <!-- Update app.config whenever this value changes -->

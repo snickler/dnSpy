@@ -2,7 +2,7 @@ param([string]$buildtfm = 'all', [switch]$NoMsbuild)
 $ErrorActionPreference = 'Stop'
 
 $net_tfm = 'net472'
-$netcore_tfm = 'netcoreapp3.0'
+$netcore_tfm = 'net6.0-windows'
 $configuration = 'Release'
 $net_baseoutput = "dnSpy\dnSpy\bin\$configuration"
 $apphostpatcher_dir = "Build\AppHostPatcher"
@@ -46,7 +46,7 @@ function Build-NetCore {
 	$publishDir = "$outdir\publish"
 
 	if ($NoMsbuild) {
-		dotnet publish -v:m -c $configuration -f $netcore_tfm -r $rid --self-contained
+		dotnet publish -v:m -c $configuration -f $netcore_tfm -r $rid --self-contained -p:PublishReadyToRun=true
 		if ($LASTEXITCODE) { exit $LASTEXITCODE }
 	}
 	else {
@@ -70,8 +70,8 @@ function Build-NetCore {
 $buildNet	  = $buildtfm -eq 'all' -or $buildtfm -eq 'net'
 $buildCoreX86 = $buildtfm -eq 'all' -or $buildtfm -eq 'core-x86'
 $buildCoreX64 = $buildtfm -eq 'all' -or $buildtfm -eq 'core-x64'
-
-if ($buildCoreX86 -or $buildCoreX64) {
+$buildCoreARM64 = $buildtfm -eq 'all' -or $buildtfm -eq 'core-arm64'
+if ($buildCoreX86 -or $buildCoreX64 -or $buildCoreARM64) {
 	if ($NoMsbuild) {
 		dotnet build -v:m -c $configuration -f $net_tfm $apphostpatcher_dir\AppHostPatcher.csproj
 		if ($LASTEXITCODE) { exit $LASTEXITCODE }
@@ -92,4 +92,8 @@ if ($buildCoreX86) {
 
 if ($buildCoreX64) {
 	Build-NetCore x64
+}
+
+if ($buildCoreARM64) { 
+	Build-NetCore arm64
 }
