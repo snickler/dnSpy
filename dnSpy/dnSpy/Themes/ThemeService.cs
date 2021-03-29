@@ -117,8 +117,8 @@ namespace dnSpy.Themes {
 
 		void InitializeResources() {
 			var app = Application.Current;
-			Debug2.Assert(!(app is null));
-			if (!(app is null))
+			Debug2.Assert(app is not null);
+			if (app is not null)
 				((Theme)Theme).UpdateResources(app.Resources);
 		}
 
@@ -131,7 +131,7 @@ namespace dnSpy.Themes {
 				return theme;
 			if (themes.TryGetValue(DefaultThemeGuid, out theme))
 				return theme;
-			return AllThemes.FirstOrDefault();
+			return AllThemes.First();
 		}
 
 		void SwitchThemeIfNecessary() {
@@ -167,7 +167,7 @@ namespace dnSpy.Themes {
 		Theme? Load(string filename) {
 			try {
 				var root = XDocument.Load(filename).Root;
-				if (root.Name != "theme")
+				if (root?.Name != "theme")
 					return null;
 
 				var theme = new Theme(root);

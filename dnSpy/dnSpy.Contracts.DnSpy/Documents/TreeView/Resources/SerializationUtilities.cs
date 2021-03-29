@@ -42,13 +42,18 @@ namespace dnSpy.Contracts.Documents.TreeView.Resources {
 
 		static ResourceElement CreateSerializedImage(Stream stream, string filename) {
 			object obj;
-			if (filename.EndsWith(".ico", StringComparison.OrdinalIgnoreCase))
+			string typeName;
+			if (filename.EndsWith(".ico", StringComparison.OrdinalIgnoreCase)) {
 				obj = new System.Drawing.Icon(stream);
-			else
+				typeName = SerializedImageUtilities.SystemDrawingIcon.AssemblyQualifiedName;
+			}
+			else {
 				obj = new System.Drawing.Bitmap(stream);
+				typeName = SerializedImageUtilities.SystemDrawingBitmap.AssemblyQualifiedName;
+			}
 			var serializedData = Serialize(obj);
 
-			var userType = new UserResourceType(obj.GetType().AssemblyQualifiedName, ResourceTypeCode.UserTypes);
+			var userType = new UserResourceType(typeName, ResourceTypeCode.UserTypes);
 			var rsrcElem = new ResourceElement {
 				Name = Path.GetFileName(filename),
 				ResourceData = new BinaryResourceData(userType, serializedData),
@@ -62,12 +67,14 @@ namespace dnSpy.Contracts.Documents.TreeView.Resources {
 		/// </summary>
 		/// <param name="obj">Data</param>
 		/// <returns></returns>
-		public static byte[] Serialize(object? obj) {
+		public static byte[] Serialize(object obj) {
 			//TODO: The asm names of the saved types are saved in the serialized data. If the current
 			//		module is eg. a .NET 2.0 asm, you should replace the versions from 4.0.0.0 to 2.0.0.0.
 			var formatter = new BinaryFormatter();
 			var outStream = new MemoryStream();
+#pragma warning disable SYSLIB0011
 			formatter.Serialize(outStream, obj);
+#pragma warning restore SYSLIB0011
 			return outStream.ToArray();
 		}
 
@@ -79,7 +86,9 @@ namespace dnSpy.Contracts.Documents.TreeView.Resources {
 		/// <returns></returns>
 		public static string Deserialize(byte[] data, out object? obj) {
 			try {
+#pragma warning disable SYSLIB0011
 				obj = new BinaryFormatter().Deserialize(new MemoryStream(data));
+#pragma warning restore SYSLIB0011
 				return string.Empty;
 			}
 			catch (Exception ex) {

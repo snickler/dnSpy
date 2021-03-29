@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
@@ -110,7 +111,7 @@ namespace dnSpy.Text.Formatting {
 					sequenceList.Add(new TextSequenceElement(BufferGraph.CreateMappingSpan(textSpan, SpanTrackingMode.EdgeExclusive)));
 				if (info.Span.Start != end || (info.Span.Length == 0 && info.AdornmentElement.Affinity == PositionAffinity.Predecessor)) {
 					bool canAppend = true;
-					if (!(lastAddedAdornment is null) && lastAddedAdornment.Value.Span.End > info.Span.Start)
+					if (lastAddedAdornment is not null && lastAddedAdornment.Value.Span.End > info.Span.Start)
 						canAppend = false;
 					if (canAppend) {
 						sequenceList.Add(info.AdornmentElement);
@@ -130,7 +131,7 @@ namespace dnSpy.Text.Formatting {
 
 		sealed class AdornmentElementAndSpanComparer : IComparer<AdornmentElementAndSpan> {
 			public static readonly AdornmentElementAndSpanComparer Instance = new AdornmentElementAndSpanComparer();
-			public int Compare(AdornmentElementAndSpan x, AdornmentElementAndSpan y) {
+			public int Compare([AllowNull] AdornmentElementAndSpan x, [AllowNull] AdornmentElementAndSpan y) {
 				int c = x.Span.Start - y.Span.Start;
 				if (c != 0)
 					return c;

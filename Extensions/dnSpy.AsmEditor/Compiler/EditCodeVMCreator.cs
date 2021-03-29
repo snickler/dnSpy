@@ -51,7 +51,7 @@ namespace dnSpy.AsmEditor.Compiler {
 			this.languageCompilerProviders = languageCompilerProviders.OrderBy(a => a.Order).ToArray();
 		}
 
-		public bool CanCreate(CompilationKind kind) => !(GetLanguageCompilerProvider(kind) is null);
+		public bool CanCreate(CompilationKind kind) => GetLanguageCompilerProvider(kind) is not null;
 
 		(IDecompiler decompiler, ILanguageCompilerProvider languageCompilerProvider)? GetLanguageCompilerProvider(CompilationKind kind) {
 			var language = TryGetUsedLanguage(kind);
@@ -113,7 +113,7 @@ namespace dnSpy.AsmEditor.Compiler {
 			return languageCompilerProviders.Any(a => a.Language == decompiler.GenericGuid);
 		}
 
-		IDecompiler TryGetUsedLanguage(CompilationKind kind) {
+		IDecompiler? TryGetUsedLanguage(CompilationKind kind) {
 			var defaultDecompiler = decompilerService.Decompiler;
 			if (IsSupportedLanguage(defaultDecompiler, kind))
 				return defaultDecompiler;

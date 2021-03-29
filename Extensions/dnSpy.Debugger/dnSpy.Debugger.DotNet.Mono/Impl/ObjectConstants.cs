@@ -38,9 +38,9 @@ namespace dnSpy.Debugger.DotNet.Mono.Impl {
 		public bool TryCreate([NotNullWhen(true)] out ObjectConstants? objectConstants) {
 			try {
 				var offsetToStringData = GetOffsetToStringData();
-				if (!(offsetToStringData is null)) {
+				if (offsetToStringData is not null) {
 					var offsetToArrayData = GetOffsetToArrayData();
-					if (!(offsetToArrayData is null)) {
+					if (offsetToArrayData is not null) {
 						objectConstants = new ObjectConstants(offsetToStringData, offsetToArrayData);
 						return true;
 					}
@@ -65,7 +65,9 @@ namespace dnSpy.Debugger.DotNet.Mono.Impl {
 			var type = thread.Domain.Corlib.GetType("System.Runtime.CompilerServices.RuntimeHelpers");
 			if (type is null)
 				return null;
+#pragma warning disable CS0618
 			var method = type.GetMethod("get_" + nameof(System.Runtime.CompilerServices.RuntimeHelpers.OffsetToStringData));
+#pragma warning restore CS0618
 			if (method is null)
 				return null;
 			var res = Call(method, Array.Empty<Value>());

@@ -118,7 +118,7 @@ namespace dnSpy.MainApp.Settings {
 			}, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
-		FontAndColorOptionsVM GetBestFontAndColorOptions() =>
+		FontAndColorOptionsVM? GetBestFontAndColorOptions() =>
 			FontAndColorOptions.FirstOrDefault(a => a.Name == AppearanceCategoryConstants.TextEditor) ??
 			FontAndColorOptions.FirstOrDefault();
 
@@ -211,7 +211,7 @@ namespace dnSpy.MainApp.Settings {
 
 		public override bool Equals(object? obj) {
 			var other = obj as FontFamilyVM;
-			return !(other is null) &&
+			return other is not null &&
 				FontFamily.Equals(other.FontFamily);
 		}
 

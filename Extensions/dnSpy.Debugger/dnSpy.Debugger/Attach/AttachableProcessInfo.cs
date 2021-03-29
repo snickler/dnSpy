@@ -95,7 +95,7 @@ namespace dnSpy.Debugger.Attach {
 			DbgOperatingSystem? operatingSystem = default;
 
 			var process = processProvider.GetProcess(attachProgramOptions.ProcessId);
-			if (!(process is null)) {
+			if (process is not null) {
 				if (attachProgramOptions.CommandLine is null)
 					commandLine = Win32CommandLineProvider.TryGetCommandLine(process.Handle);
 				if (attachProgramOptions.Title is null)
@@ -146,9 +146,9 @@ namespace dnSpy.Debugger.Attach {
 			return (name, title, filename, commandLine, arch, operatingSystem);
 		}
 
-		static string GetProcessName(Process process) {
+		static string? GetProcessName(Process process) {
 			try {
-				return process.MainModule.FileName;
+				return process.MainModule?.FileName;
 			}
 			catch {
 			}

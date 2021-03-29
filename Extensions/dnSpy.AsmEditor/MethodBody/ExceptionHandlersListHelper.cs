@@ -57,7 +57,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			Add(new ContextMenuHandler {
 				Header = "res:CopyMetaDataToken",
 				HeaderPlural = "res:CopyMetaDataTokens",
-				Command = new RelayCommand(a => CopyCatchTypeMDTokens((ExceptionHandlerVM[])a), a => CopyCatchTypeMDTokensCanExecute((ExceptionHandlerVM[])a)),
+				Command = new RelayCommand(a => CopyCatchTypeMDTokens((ExceptionHandlerVM[])a!), a => CopyCatchTypeMDTokensCanExecute((ExceptionHandlerVM[])a!)),
 				InputGestureText = "res:ShortCutKeyCtrlM",
 				Modifiers = ModifierKeys.Control,
 				Key = Key.M,
@@ -89,11 +89,11 @@ namespace dnSpy.AsmEditor.MethodBody {
 			}
 		}
 
-		bool CopyCatchTypeMDTokensCanExecute(ExceptionHandlerVM[] ehs) => ehs.Any(a => !(GetCatchTypeToken(a.CatchType) is null));
+		bool CopyCatchTypeMDTokensCanExecute(ExceptionHandlerVM[] ehs) => ehs.Any(a => GetCatchTypeToken(a.CatchType) is not null);
 		static uint? GetCatchTypeToken(ITypeDefOrRef? type) => type is null ? (uint?)null : type.MDToken.Raw;
 
 		void coll_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-			if (!(e.NewItems is null))
+			if (e.NewItems is not null)
 				InitializeExceptionHandlers(e.NewItems);
 		}
 

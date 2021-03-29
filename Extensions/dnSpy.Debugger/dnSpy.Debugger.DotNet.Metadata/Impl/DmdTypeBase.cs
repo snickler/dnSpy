@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 
@@ -33,7 +34,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		protected DmdTypeBase(IList<DmdCustomModifier>? customModifiers) =>
 			this.customModifiers = ReadOnlyCollectionHelpers.Create(customModifiers);
 		protected IList<DmdCustomModifier>? VerifyCustomModifiers(IList<DmdCustomModifier>? customModifiers) {
-			if (!(customModifiers is null)) {
+			if (customModifiers is not null) {
 				for (int i = 0; i < customModifiers.Count; i++) {
 					if (customModifiers[i].Type.AppDomain != AppDomain)
 						throw new ArgumentException();
@@ -69,7 +70,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 
 		public override DmdMethodBase? DeclaringMethod => throw new InvalidOperationException();
 		public sealed override DmdAssembly Assembly => Module.Assembly;
-		public sealed override bool HasElementType => !(GetElementType() is null);
+		public sealed override bool HasElementType => GetElementType() is not null;
 		public override DmdGenericParameterAttributes GenericParameterAttributes => throw new InvalidOperationException();
 		public override bool IsGenericType => false;
 		public override bool IsGenericTypeDefinition => false;
@@ -139,12 +140,12 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 					continue;
 				if (!DmdMemberInfoComparer.IsMatch(method, bindingAttr, callConvention))
 					continue;
-				if (!(types is null) && DmdMemberInfoComparer.IsMatch(method, types))
+				if (types is not null && DmdMemberInfoComparer.IsMatch(method, types))
 					return method;
 				foundMethod = method;
 				counter++;
 			}
-			if (!(foundMethod is null) && types is null) {
+			if (foundMethod is not null && types is null) {
 				if (counter == 1)
 					return foundMethod;
 				throw new System.Reflection.AmbiguousMatchException();
@@ -218,16 +219,16 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 					continue;
 				if (!DmdMemberInfoComparer.IsMatch(property, bindingAttr))
 					continue;
-				if (!(returnType is null) && !DmdMemberInfoComparer.IsMatch(property, returnType))
+				if (returnType is not null && !DmdMemberInfoComparer.IsMatch(property, returnType))
 					continue;
-				if (!(types is null) && !DmdMemberInfoComparer.IsMatch(property, types))
+				if (types is not null && !DmdMemberInfoComparer.IsMatch(property, types))
 					continue;
-				if (!(returnType is null) && !(types is null))
+				if (returnType is not null && types is not null)
 					return property;
 				foundProperty = property;
 				counter++;
 			}
-			if (!(foundProperty is null) && types is null) {
+			if (foundProperty is not null && types is null) {
 				if (counter == 1)
 					return foundProperty;
 				if (returnType is null)
@@ -370,7 +371,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 
 		public sealed override ReadOnlyCollection<DmdType> GetInterfaces() {
 			var f = ExtraFields;
-			if (!(f.__implementedInterfaces_DONT_USE is null))
+			if (f.__implementedInterfaces_DONT_USE is not null)
 				return f.__implementedInterfaces_DONT_USE;
 
 			var implIfaces = CreateInterfaces(this);
@@ -466,7 +467,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		}
 
 		void InitializeCustomAttributes(ExtraFieldsImpl f) {
-			if (!(f.__customAttributes_DONT_USE is null))
+			if (f.__customAttributes_DONT_USE is not null)
 				return;
 			var info = CreateCustomAttributes();
 			var newSAs = ReadOnlyCollectionHelpers.Create(info.sas);
@@ -500,7 +501,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		public sealed override ReadOnlyCollection<DmdFieldInfo> DeclaredFields {
 			get {
 				var f = ExtraFields;
-				if (!(f.__declaredFields_DONT_USE is null))
+				if (f.__declaredFields_DONT_USE is not null)
 					return f.__declaredFields_DONT_USE;
 				var res = CreateDeclaredFields(this);
 				Interlocked.CompareExchange(ref f.__declaredFields_DONT_USE, ReadOnlyCollectionHelpers.Create(res), null);
@@ -511,7 +512,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		public sealed override ReadOnlyCollection<DmdMethodBase> DeclaredMethods {
 			get {
 				var f = ExtraFields;
-				if (!(f.__declaredMethods_DONT_USE is null))
+				if (f.__declaredMethods_DONT_USE is not null)
 					return f.__declaredMethods_DONT_USE;
 				var res = CreateDeclaredMethods(this);
 				Interlocked.CompareExchange(ref f.__declaredMethods_DONT_USE, ReadOnlyCollectionHelpers.Create(res), null);
@@ -522,7 +523,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		public sealed override ReadOnlyCollection<DmdPropertyInfo> DeclaredProperties {
 			get {
 				var f = ExtraFields;
-				if (!(f.__declaredProperties_DONT_USE is null))
+				if (f.__declaredProperties_DONT_USE is not null)
 					return f.__declaredProperties_DONT_USE;
 				var res = CreateDeclaredProperties(this);
 				Interlocked.CompareExchange(ref f.__declaredProperties_DONT_USE, ReadOnlyCollectionHelpers.Create(res), null);
@@ -533,7 +534,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		public sealed override ReadOnlyCollection<DmdEventInfo> DeclaredEvents {
 			get {
 				var f = ExtraFields;
-				if (!(f.__declaredEvents_DONT_USE is null))
+				if (f.__declaredEvents_DONT_USE is not null)
 					return f.__declaredEvents_DONT_USE;
 				var res = CreateDeclaredEvents(this);
 				Interlocked.CompareExchange(ref f.__declaredEvents_DONT_USE, ReadOnlyCollectionHelpers.Create(res), null);
@@ -548,7 +549,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 				for (;;) {
 					var f = ExtraFields;
 					var nestedTypes = f.__nestedTypes_DONT_USE;
-					if (!(nestedTypes is null))
+					if (nestedTypes is not null)
 						return nestedTypes;
 					var res = CreateNestedTypes();
 					Interlocked.CompareExchange(ref f.__nestedTypes_DONT_USE, ReadOnlyCollectionHelpers.Create(res), null);
@@ -582,7 +583,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		internal ReadOnlyCollection<DmdType> DeclaredInterfaces {
 			get {
 				var f = ExtraFields;
-				if (!(f.__declaredInterfaces_DONT_USE is null))
+				if (f.__declaredInterfaces_DONT_USE is not null)
 					return f.__declaredInterfaces_DONT_USE;
 				var res = ReadDeclaredInterfaces();
 				Interlocked.CompareExchange(ref f.__declaredInterfaces_DONT_USE, ReadOnlyCollectionHelpers.Create(res), null);
@@ -595,7 +596,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 				// We loop here because the field could be cleared if it's a dynamic type
 				for (;;) {
 					var f = __extraFields_DONT_USE;
-					if (!(f is null))
+					if (f is not null)
 						return f;
 					Interlocked.CompareExchange(ref __extraFields_DONT_USE, new ExtraFieldsImpl(), null);
 				}
@@ -660,7 +661,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 			protected void InitializeAllCore() {
 				lock (lockObj) {
 					int index = members.Count;
-					while (!(GetNext(ref index).Member is null))
+					while (GetNext(ref index).Member is not null)
 						index = members.Count;
 				}
 			}
@@ -742,8 +743,8 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 			sealed class EqualityComparer : IEqualityComparer<Key> {
 				public static readonly EqualityComparer Instance = new EqualityComparer();
 				EqualityComparer() { }
-				public bool Equals(Key x, Key y) => x.Equals(y);
-				public int GetHashCode(Key obj) => obj.GetHashCode();
+				public bool Equals([AllowNull] Key x, [AllowNull] Key y) => x.Equals(y);
+				public int GetHashCode([DisallowNull] Key obj) => obj.GetHashCode();
 			}
 			readonly struct Key : IEquatable<Key> {
 				public string Name { get; }
@@ -816,8 +817,8 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 			sealed class EqualityComparer : IEqualityComparer<Key> {
 				public static readonly EqualityComparer Instance = new EqualityComparer();
 				EqualityComparer() { }
-				public bool Equals(Key x, Key y) => x.Equals(y);
-				public int GetHashCode(Key obj) => obj.GetHashCode();
+				public bool Equals([AllowNull] Key x, [AllowNull] Key y) => x.Equals(y);
+				public int GetHashCode([DisallowNull] Key obj) => obj.GetHashCode();
 			}
 			readonly struct Key : IEquatable<Key> {
 				public string Name { get; }
@@ -919,7 +920,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		DmdFieldReader BaseFieldsReader {
 			get {
 				var f = ExtraFields;
-				if (!(f.__baseFields_DONT_USE is null))
+				if (f.__baseFields_DONT_USE is not null)
 					return f.__baseFields_DONT_USE;
 				Interlocked.CompareExchange(ref f.__baseFields_DONT_USE, new DmdFieldReader(this), null);
 				return f.__baseFields_DONT_USE!;
@@ -929,7 +930,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		DmdMethodReader BaseMethodsReader {
 			get {
 				var f = ExtraFields;
-				if (!(f.__baseMethods_DONT_USE is null))
+				if (f.__baseMethods_DONT_USE is not null)
 					return f.__baseMethods_DONT_USE;
 				Interlocked.CompareExchange(ref f.__baseMethods_DONT_USE, new DmdMethodReader(this), null);
 				return f.__baseMethods_DONT_USE!;
@@ -939,7 +940,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		DmdPropertyReader BasePropertiesReader {
 			get {
 				var f = ExtraFields;
-				if (!(f.__baseProperties_DONT_USE is null))
+				if (f.__baseProperties_DONT_USE is not null)
 					return f.__baseProperties_DONT_USE;
 				Interlocked.CompareExchange(ref f.__baseProperties_DONT_USE, new DmdPropertyReader(this), null);
 				return f.__baseProperties_DONT_USE!;
@@ -949,7 +950,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 		DmdEventReader BaseEventsReader {
 			get {
 				var f = ExtraFields;
-				if (!(f.__baseEvents_DONT_USE is null))
+				if (f.__baseEvents_DONT_USE is not null)
 					return f.__baseEvents_DONT_USE;
 				Interlocked.CompareExchange(ref f.__baseEvents_DONT_USE, new DmdEventReader(this), null);
 				return f.__baseEvents_DONT_USE!;
@@ -1154,7 +1155,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 					continue;
 				if (sig.GenericParameterCount != genericParameterCount)
 					continue;
-				if (!(returnType is null)) {
+				if (returnType is not null) {
 					if (!DmdMemberInfoEqualityComparer.DefaultMember.Equals(returnType, sig.ReturnType))
 						continue;
 				}
@@ -1213,7 +1214,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 					continue;
 				if (sig.GenericParameterCount != genericParameterCount)
 					continue;
-				if (!(returnType is null)) {
+				if (returnType is not null) {
 					if (!DmdMemberInfoEqualityComparer.DefaultMember.Equals(returnType, sig.ReturnType))
 						continue;
 				}

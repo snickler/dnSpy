@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
@@ -51,7 +52,7 @@ namespace dnSpy.Debugger.Dialogs.AttachToProcess {
 		public string SearchHelpToolTip => ToolTipHelper.AddKeyboardShortcut(dnSpy_Debugger_Resources.SearchHelp_ToolTip, null);
 
 		public ICommand InfoLinkCommand => new RelayCommand(a => ShowInfoLinkPage());
-		public bool HasInfoLink => !(InfoLinkToolTip is null) && !(infoLink is null);
+		public bool HasInfoLink => InfoLinkToolTip is not null && infoLink is not null;
 		public string? InfoLinkToolTip { get; }
 		readonly string? infoLink;
 
@@ -97,12 +98,12 @@ namespace dnSpy.Debugger.Dialogs.AttachToProcess {
 				options = new ShowAttachToProcessDialogOptions();
 				options.InfoLink = new AttachToProcessLinkInfo {
 					ToolTipMessage = dnSpy_Debugger_Resources.AttachToProcess_MakingAnImageEasierToDebug,
-					Url = "https://github.com/0xd4d/dnSpy/wiki/Making-an-Image-Easier-to-Debug",
+					Url = "https://github.com/dnSpy/dnSpy/wiki/Making-an-Image-Easier-to-Debug",
 				};
 			}
 			Title = GetTitle(options);
 			MessageText = GetMessage(options);
-			if (!(options.InfoLink is null)) {
+			if (options.InfoLink is not null) {
 				var l = options.InfoLink.Value;
 				if (!string.IsNullOrEmpty(l.Url)) {
 					InfoLinkToolTip = l.ToolTipMessage;
@@ -161,7 +162,7 @@ namespace dnSpy.Debugger.Dialogs.AttachToProcess {
 		}
 
 		static string? GetMessage(ShowAttachToProcessDialogOptions options) {
-			if (!(options.Message is null))
+			if (options.Message is not null)
 				return options.Message;
 			if (!Environment.Is64BitOperatingSystem)
 				return null;
@@ -195,7 +196,7 @@ namespace dnSpy.Debugger.Dialogs.AttachToProcess {
 			uiDispatcher.VerifyAccess();
 			processProvider?.Dispose();
 			processProvider = null;
-			if (!(attachProgramOptionsAggregator is null)) {
+			if (attachProgramOptionsAggregator is not null) {
 				attachProgramOptionsAggregator.AttachProgramOptionsAdded -= AttachProgramOptionsAggregator_AttachProgramOptionsAdded;
 				attachProgramOptionsAggregator.Completed -= AttachProgramOptionsAggregator_Completed;
 				attachProgramOptionsAggregator.Dispose();
@@ -208,7 +209,7 @@ namespace dnSpy.Debugger.Dialogs.AttachToProcess {
 			uiDispatcher.VerifyAccess();
 			if (attachProgramOptionsAggregator != sender)
 				return;
-			Debug2.Assert(!(processProvider is null));
+			Debug2.Assert(processProvider is not null);
 			foreach (var options in e.AttachProgramOptions) {
 				if (!dbgManager.CanDebugRuntime(options.ProcessId, options.RuntimeId))
 					continue;
@@ -281,8 +282,14 @@ namespace dnSpy.Debugger.Dialogs.AttachToProcess {
 			return list;
 		}
 
-		public int Compare(ProgramVM x, ProgramVM y) {
+		public int Compare([AllowNull] ProgramVM x, [AllowNull] ProgramVM y) {
 			Debug.Assert(uiDispatcher.CheckAccess());
+			if ((object?)x == y)
+				return 0;
+			if (x is null)
+				return -1;
+			if (y is null)
+				return 1;
 			var (desc, dir) = Descs.SortedColumn;
 
 			int id;
@@ -487,7 +494,7 @@ namespace dnSpy.Debugger.Dialogs.AttachToProcess {
 		}
 
 		void ShowInfoLinkPage() {
-			if (!(infoLink is null))
+			if (infoLink is not null)
 				OpenWebPage(infoLink);
 		}
 

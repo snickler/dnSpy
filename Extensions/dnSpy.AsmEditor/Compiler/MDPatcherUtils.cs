@@ -28,6 +28,8 @@ using dnlib.PE;
 
 namespace dnSpy.AsmEditor.Compiler {
 	static unsafe class MDPatcherUtils {
+		public sealed class InvalidMetadataException : Exception { }
+
 		public static IEnumerable<TypeDef> GetMetadataTypes(TypeDef type) {
 			if (!ExistsInMetadata(type))
 				yield break;
@@ -49,24 +51,24 @@ namespace dnSpy.AsmEditor.Compiler {
 
 		public unsafe static uint ReadCompressedUInt32(ref byte* data, byte* end) {
 			if (data >= end)
-				throw new IndexOutOfRangeException();
+				throw new InvalidMetadataException();
 			byte b = *data++;
 			if ((b & 0x80) == 0)
 				return b;
 
 			if ((b & 0xC0) == 0x80) {
 				if (data >= end)
-					throw new IndexOutOfRangeException();
+					throw new InvalidMetadataException();
 				return (uint)(((b & 0x3F) << 8) | *data++);
 			}
 
 			if (data + 2 >= end)
-				throw new IndexOutOfRangeException();
+				throw new InvalidMetadataException();
 			return (uint)(((b & 0x1F) << 24) | (*data++ << 16) |
 					(*data++ << 8) | *data++);
 		}
 
-		public static bool ExistsInMetadata(TypeDef? type) => !(type is null) && !(type is TypeDefUser);
+		public static bool ExistsInMetadata(TypeDef? type) => type is not null && !(type is TypeDefUser);
 
 		public static bool ReferencesModule(ModuleDef sourceModule, ModuleDef? targetModule) {
 			if (targetModule is null)
@@ -76,7 +78,7 @@ namespace dnSpy.AsmEditor.Compiler {
 				return true;
 
 			var targetAssembly = targetModule.Assembly;
-			if (!(targetAssembly is null)) {
+			if (targetAssembly is not null) {
 				// Don't compare version, there could be binding redirects
 				var asmComparer = new AssemblyNameComparer(AssemblyNameComparerFlags.Name | AssemblyNameComparerFlags.PublicKeyToken | AssemblyNameComparerFlags.Culture | AssemblyNameComparerFlags.ContentType);
 				foreach (var asmRef in sourceModule.GetAssemblyRefs()) {

@@ -17,6 +17,8 @@
     along with dnSpy.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#pragma warning disable SYSLIB0003 // SecurityAction
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -80,7 +82,7 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 				if (namedArgs is null)
 					throw new IOException();
 				var (ctor, ctorArguments) = GetConstructor(type, action);
-				Debug2.Assert(!(ctor is null));
+				Debug2.Assert(ctor is not null);
 				if (ctor is null)
 					continue;
 				res[w++] = new DmdCustomAttributeData(ctor, ctorArguments, namedArgs, isPseudoCustomAttribute: false);
@@ -101,8 +103,8 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 			var type = module.AppDomain.GetWellKnownType(DmdWellKnownType.System_Security_Permissions_PermissionSetAttribute);
 			var (ctor, ctorArguments) = GetConstructor(type, action);
 			var xmlProp = type.GetProperty("XML", module.AppDomain.System_String, Array.Empty<DmdType>());
-			Debug2.Assert(!(ctor is null));
-			Debug2.Assert(!(xmlProp is null));
+			Debug2.Assert(ctor is not null);
+			Debug2.Assert(xmlProp is not null);
 			if (ctor is null || xmlProp is null)
 				return Array.Empty<DmdCustomAttributeData>();
 			var namedArguments = new[] { new DmdCustomAttributeNamedArgument(xmlProp, new DmdCustomAttributeTypedArgument(module.AppDomain.System_String, xml)) };
@@ -113,12 +115,13 @@ namespace dnSpy.Debugger.DotNet.Metadata.Impl {
 			var appDomain = type.AppDomain;
 			var securityActionType = appDomain.GetWellKnownType(DmdWellKnownType.System_Security_Permissions_SecurityAction);
 			var ctor = type.GetConstructor(new[] { securityActionType });
-			if (!(ctor is null)) {
+			if (ctor is not null) {
 				var ctorArgs = new[] { new DmdCustomAttributeTypedArgument(securityActionType, (int)action) };
 				return (ctor, ctorArgs);
 			}
 
 			ctor = type.GetConstructor(Array.Empty<DmdType>()) ?? type.GetConstructors().FirstOrDefault();
+			Debug2.Assert(ctor is not null);
 			return (ctor, null);
 		}
 

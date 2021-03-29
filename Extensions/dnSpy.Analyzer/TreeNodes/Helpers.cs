@@ -46,14 +46,14 @@ namespace dnSpy.Analyzer.TreeNodes {
 		/// Used to detect the 'parent method' for a lambda/iterator/async state machine.
 		/// </summary>
 		static MethodDef? GetOriginalCodeLocation(TypeDef type) {
-			if (!(type is null) && !(type.DeclaringType is null) && IsCompilerGenerated(type)) {
+			if (type is not null && type.DeclaringType is not null && IsCompilerGenerated(type)) {
 				if (type.IsValueType) {
 					// Value types might not have any constructor; but they must be stored in a local var
 					// because 'initobj' (or 'call .ctor') expects a managed ref.
 					return FindVariableOfTypeUsageInType(type.DeclaringType, type);
 				}
 				else {
-					MethodDef constructor = GetTypeConstructor(type);
+					var constructor = GetTypeConstructor(type);
 					if (constructor is null)
 						return null;
 					return FindMethodUsageInType(type.DeclaringType, constructor);
@@ -62,7 +62,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 			return null;
 		}
 
-		static MethodDef GetTypeConstructor(TypeDef type) => type.FindConstructors().FirstOrDefault();
+		static MethodDef? GetTypeConstructor(TypeDef type) => type.FindConstructors().FirstOrDefault();
 
 		static MethodDef? FindMethodUsageInType(TypeDef type, MethodDef analyzedMethod) {
 			string name = analyzedMethod.Name;
@@ -107,12 +107,12 @@ namespace dnSpy.Analyzer.TreeNodes {
 		}
 
 		static TypeDef? ResolveWithinSameModule(ITypeDefOrRef type) {
-			if (!(type is null) && type.Scope == type.Module)
+			if (type is not null && type.Scope == type.Module)
 				return type.ResolveTypeDef();
 			return null;
 		}
 
 		static bool IsCompilerGenerated(this IHasCustomAttribute hca) =>
-			!(hca is null) && hca.CustomAttributes.IsDefined("System.Runtime.CompilerServices.CompilerGeneratedAttribute");
+			hca is not null && hca.CustomAttributes.IsDefined("System.Runtime.CompilerServices.CompilerGeneratedAttribute");
 	}
 }

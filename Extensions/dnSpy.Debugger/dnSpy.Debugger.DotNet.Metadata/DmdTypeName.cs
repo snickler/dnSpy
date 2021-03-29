@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace dnSpy.Debugger.DotNet.Metadata {
@@ -72,11 +73,11 @@ namespace dnSpy.Debugger.DotNet.Metadata {
 		/// <returns></returns>
 		public static DmdTypeName Create(DmdType type) {
 			if (type.TypeSignatureKind == DmdTypeSignatureKind.Type) {
-				Debug2.Assert(!(type.MetadataName is null));
+				Debug2.Assert(type.MetadataName is not null);
 				var declType = type.DeclaringType;
 				if (declType is null)
 					return new DmdTypeName(type.MetadataNamespace, type.MetadataName);
-				Debug2.Assert(!(declType.MetadataName is null));
+				Debug2.Assert(declType.MetadataName is not null);
 
 				if (declType.DeclaringType is null)
 					return new DmdTypeName(declType.MetadataNamespace, declType.MetadataName, type.MetadataName);
@@ -88,7 +89,7 @@ namespace dnSpy.Debugger.DotNet.Metadata {
 					list.Add(type);
 					type = type.DeclaringType;
 				}
-				Debug2.Assert(!(type.MetadataName is null));
+				Debug2.Assert(type.MetadataName is not null);
 				StringBuilder? sb = ObjectCache.AllocStringBuilder();
 				for (int i = list.Count - 1; i >= 0; i--) {
 					if (i != list.Count - 1)
@@ -134,7 +135,7 @@ namespace dnSpy.Debugger.DotNet.Metadata {
 		/// <param name="x"></param>
 		/// <param name="y"></param>
 		/// <returns></returns>
-		public bool Equals(DmdTypeName x, DmdTypeName y) =>
+		public bool Equals([AllowNull] DmdTypeName x, [AllowNull] DmdTypeName y) =>
 			x.Name == y.Name &&
 			x.Namespace == y.Namespace &&
 			x.Extra == y.Extra;
@@ -144,7 +145,7 @@ namespace dnSpy.Debugger.DotNet.Metadata {
 		/// </summary>
 		/// <param name="obj"></param>
 		/// <returns></returns>
-		public int GetHashCode(DmdTypeName obj) =>
+		public int GetHashCode([DisallowNull] DmdTypeName obj) =>
 			StringComparer.Ordinal.GetHashCode(obj.Namespace ?? string.Empty) ^
 			StringComparer.Ordinal.GetHashCode(obj.Name ?? string.Empty) ^
 			StringComparer.Ordinal.GetHashCode(obj.Extra ?? string.Empty);

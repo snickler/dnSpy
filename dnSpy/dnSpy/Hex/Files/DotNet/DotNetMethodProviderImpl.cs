@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using dnSpy.Contracts.Hex;
 using dnSpy.Contracts.Hex.Files;
 using dnSpy.Contracts.Hex.Files.DotNet;
@@ -45,7 +46,7 @@ namespace dnSpy.Hex.Files.DotNet {
 
 		sealed class MethodBodyPositionAndRidComparer : IComparer<MethodBodyRvaAndRid> {
 			public static readonly MethodBodyPositionAndRidComparer Instance = new MethodBodyPositionAndRidComparer();
-			public int Compare(MethodBodyRvaAndRid x, MethodBodyRvaAndRid y) {
+			public int Compare([AllowNull] MethodBodyRvaAndRid x, [AllowNull] MethodBodyRvaAndRid y) {
 				int c = x.Rva.CompareTo(y.Rva);
 				if (c != 0)
 					return c;
@@ -107,7 +108,7 @@ namespace dnSpy.Hex.Files.DotNet {
 			if (endPos < methodBodyPosition)
 				endPos = methodBodyPosition;
 			var info = new MethodBodyReader(File, tokens, methodBodyPosition, endPos).Read();
-			if (!(info is null))
+			if (info is not null)
 				return info.Value;
 
 			// The file could be obfuscated (encrypted methods), assume the method ends at the next method body RVA

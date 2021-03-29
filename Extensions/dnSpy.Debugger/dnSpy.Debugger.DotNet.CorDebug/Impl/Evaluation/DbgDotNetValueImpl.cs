@@ -199,7 +199,7 @@ namespace dnSpy.Debugger.DotNet.CorDebug.Impl.Evaluation {
 					DbgDotNetArrayDimensionInfo[]? tmpDimensionInfos = null;
 					bool res = engine.InvokeCorDebugThread(() => GetArrayInfo_CorDebug(out tmpElementCount, out tmpDimensionInfos));
 					elementCount = tmpElementCount;
-					dimensionInfos = tmpDimensionInfos;
+					dimensionInfos = tmpDimensionInfos!;
 					return res;
 				}
 			}
@@ -227,7 +227,7 @@ namespace dnSpy.Debugger.DotNet.CorDebug.Impl.Evaluation {
 				elementCount = obj.Value.ArrayCount;
 				var baseIndexes = (obj.Value.HasBaseIndicies ? obj.Value.BaseIndicies : null) ?? Array.Empty<uint>();
 				var dimensions = obj.Value.Dimensions;
-				if (!(dimensions is null)) {
+				if (dimensions is not null) {
 					var infos = new DbgDotNetArrayDimensionInfo[dimensions.Length];
 					for (int i = 0; i < infos.Length; i++)
 						infos[i] = new DbgDotNetArrayDimensionInfo((int)(i < baseIndexes.Length ? baseIndexes[i] : 0), dimensions[i]);
@@ -377,7 +377,9 @@ namespace dnSpy.Debugger.DotNet.CorDebug.Impl.Evaluation {
 					offsetToStringData = IntPtr.Size == 4 ? OffsetToStringData32_CLR2 : OffsetToStringData64_CLR2;
 				else {
 					offsetToStringData = IntPtr.Size == 4 ? OffsetToStringData32 : OffsetToStringData64;
+#pragma warning disable CS0618
 					Debug.Assert(offsetToStringData == RuntimeHelpers.OffsetToStringData);
+#pragma warning restore CS0618
 				}
 				uint stringLength = v.StringLength;
 				Debug.Assert((ulong)offsetToStringData + stringLength * 2 <= size);

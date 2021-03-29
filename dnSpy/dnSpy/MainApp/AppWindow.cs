@@ -114,8 +114,8 @@ namespace dnSpy.MainApp {
 		static string CalculateAssemblyInformationalVersion(Assembly asm) {
 			var attrs = asm.GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false);
 			var attr = attrs.Length == 0 ? null : attrs[0] as AssemblyInformationalVersionAttribute;
-			Debug2.Assert(!(attr is null));
-			if (!(attr is null))
+			Debug2.Assert(attr is not null);
+			if (attr is not null)
 				return attr.InformationalVersion;
 			return asm.GetName().Version!.ToString();
 		}
@@ -128,8 +128,12 @@ namespace dnSpy.MainApp {
 			sc.AddChild(statusBar, StackedContentChildInfo.CreateVertical(new GridLength(0, GridUnitType.Auto)));
 			mainWindow = new MainWindow(sc.UIObject);
 			AddTitleInfo(IntPtr.Size == 4 ? "32-bit" : "64-bit");
-#if NETCOREAPP
-			AddTitleInfo(".NET Core");
+#if NETFRAMEWORK
+			AddTitleInfo(".NET Framework");
+#elif NET
+			AddTitleInfo(".NET");
+#else
+#error Unknown target framework
 #endif
 #if DEBUG
 			AddTitleInfo("Debug Build");
@@ -176,7 +180,7 @@ namespace dnSpy.MainApp {
 		void MainWindow_GotKeyboardFocus(object? sender, KeyboardFocusChangedEventArgs e) {
 			if (e.NewFocus == MainWindow) {
 				var g = documentTabService.TabGroupService.ActiveTabGroup;
-				if (!(g is null) && !(g.ActiveTabContent is null)) {
+				if (g is not null && g.ActiveTabContent is not null) {
 					g.SetFocus(g.ActiveTabContent);
 					e.Handled = true;
 					return;
@@ -197,7 +201,7 @@ namespace dnSpy.MainApp {
 		readonly WeakEventList<EventArgs> mainWindowClosed;
 
 		public void RefreshToolBar() {
-			if (!(mainWindow is null))
+			if (mainWindow is not null)
 				appToolBar.Initialize(mainWindow);
 		}
 

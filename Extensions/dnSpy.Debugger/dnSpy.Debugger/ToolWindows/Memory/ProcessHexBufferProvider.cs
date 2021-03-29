@@ -209,7 +209,7 @@ namespace dnSpy.Debugger.ToolWindows.Memory {
 			else {
 				foreach (var p in processes) {
 					var info = TryGetProcessInfo_UI(p.Id);
-					Debug2.Assert(!(info is null));
+					Debug2.Assert(info is not null);
 					if (info is null)
 						continue;
 					ClearProcessStream_UI(info);
@@ -230,7 +230,7 @@ namespace dnSpy.Debugger.ToolWindows.Memory {
 		}
 
 		// UI thread
-		void InitializeNonInitializedBuffers_UI(ProcessInfo info) {
+		void InitializeNonInitializedBuffers_UI(ProcessInfo? info) {
 			uiDispatcher.VerifyAccess();
 			if (info is null)
 				return;
@@ -311,7 +311,7 @@ namespace dnSpy.Debugger.ToolWindows.Memory {
 		// UI thread
 		public override bool IsValidBuffer(HexBuffer buffer) {
 			uiDispatcher.VerifyAccess();
-			return !(TryGetBufferState_UI(buffer) is null);
+			return TryGetBufferState_UI(buffer) is not null;
 		}
 
 		// UI thread

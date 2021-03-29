@@ -58,7 +58,7 @@ namespace dnSpy.MainApp.Settings {
 							continue;
 
 						using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Classes\" + name + @"\shell\" + EXPLORER_MENU_TEXT)) {
-							if (!(key is null))
+							if (key is not null)
 								count++;
 						}
 					}
@@ -75,7 +75,7 @@ namespace dnSpy.MainApp.Settings {
 				bool enabled = value.Value;
 
 				var path = Assembly.GetEntryAssembly()!.Location;
-#if NETCOREAPP
+#if NET
 				// Use the native exe and not the managed file
 				path = Path.ChangeExtension(path, "exe");
 				if (!File.Exists(path)) {

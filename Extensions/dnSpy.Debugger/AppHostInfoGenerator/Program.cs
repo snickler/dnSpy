@@ -171,20 +171,20 @@ namespace AppHostInfoGenerator {
 					var fileData = DownloadNuGetPackage("Microsoft.NETCore.DotNetAppHost", version, NuGetSource.NuGet);
 					using (var zip = new ZipArchive(new MemoryStream(fileData), ZipArchiveMode.Read, leaveOpen: false)) {
 						var runtimeJsonString = GetFileAsString(zip, "runtime.json");
-						var runtimeJson = (JObject)JsonConvert.DeserializeObject(runtimeJsonString);
-						foreach (JProperty runtime in runtimeJson["runtimes"]) {
+						var runtimeJson = (JObject)JsonConvert.DeserializeObject(runtimeJsonString)!;
+						foreach (JProperty runtime in runtimeJson["runtimes"]!) {
 							var runtimeName = runtime.Name;
 							if (runtime.Count != 1)
 								throw new InvalidOperationException("Expected 1 child");
-							var dotNetAppHostObject = (JObject)runtime.First;
-							var dotNetAppHostObject2 = (JObject)dotNetAppHostObject["Microsoft.NETCore.DotNetAppHost"];
+							var dotNetAppHostObject = (JObject)runtime.First!;
+							var dotNetAppHostObject2 = (JObject)dotNetAppHostObject["Microsoft.NETCore.DotNetAppHost"]!;
 							if (dotNetAppHostObject2.Count != 1)
 								throw new InvalidOperationException("Expected 1 child");
-							var dotNetAppHostProperty = (JProperty)dotNetAppHostObject2.First;
+							var dotNetAppHostProperty = (JProperty)dotNetAppHostObject2.First!;
 							if (dotNetAppHostProperty.Count != 1)
 								throw new InvalidOperationException("Expected 1 child");
 							var runtimePackageName = dotNetAppHostProperty.Name;
-							var runtimePackageVersion = GetNuGetVersion((string)((JValue)dotNetAppHostProperty.Value).Value);
+							var runtimePackageVersion = GetNuGetVersion((string)((JValue)dotNetAppHostProperty.Value).Value!);
 							Console.WriteLine();
 							Console.WriteLine($"{runtimePackageName} {runtimePackageVersion}");
 							NuGetSource[] nugetSources;
@@ -206,7 +206,7 @@ namespace AppHostInfoGenerator {
 								Console.WriteLine(error);
 								continue;
 							}
-							Debug.Assert(!(ridData is null));
+							Debug.Assert(ridData is not null);
 							if (ridData is null)
 								throw new InvalidOperationException();
 							using (var ridZip = new ZipArchive(new MemoryStream(ridData), ZipArchiveMode.Read, leaveOpen: false)) {
@@ -370,13 +370,13 @@ namespace AppHostInfoGenerator {
 			public static readonly AppHostInfoDupeEqualityComparer Instance = new AppHostInfoDupeEqualityComparer();
 			AppHostInfoDupeEqualityComparer() { }
 
-			public bool Equals(AppHostInfo x, AppHostInfo y) =>
+			public bool Equals([AllowNull] AppHostInfo x, [AllowNull] AppHostInfo y) =>
 				x.RelPathOffset == y.RelPathOffset &&
 				x.HashDataOffset == y.HashDataOffset &&
 				x.HashDataSize == y.HashDataSize &&
 				AppHostInfoEqualityComparer.ByteArrayEquals(x.Hash, y.Hash);
 
-			public int GetHashCode(AppHostInfo obj) =>
+			public int GetHashCode([DisallowNull] AppHostInfo obj) =>
 				(int)(obj.RelPathOffset ^ obj.HashDataOffset ^ obj.HashDataSize) ^ AppHostInfoEqualityComparer.ByteArrayGetHashCode(obj.Hash);
 		}
 
@@ -384,12 +384,12 @@ namespace AppHostInfoGenerator {
 			public static readonly AppHostInfoEqualityComparer Instance = new AppHostInfoEqualityComparer();
 			AppHostInfoEqualityComparer() { }
 
-			public bool Equals(AppHostInfo x, AppHostInfo y) =>
+			public bool Equals([AllowNull] AppHostInfo x, [AllowNull] AppHostInfo y) =>
 				x.HashDataOffset == y.HashDataOffset &&
 				x.HashDataSize == y.HashDataSize &&
 				ByteArrayEquals(x.Hash, y.Hash);
 
-			public int GetHashCode(AppHostInfo obj) =>
+			public int GetHashCode([DisallowNull] AppHostInfo obj) =>
 				(int)(obj.HashDataOffset ^ obj.HashDataSize) ^ ByteArrayGetHashCode(obj.Hash);
 
 			internal static bool ByteArrayEquals(byte[] a, byte[] b) {
@@ -430,7 +430,7 @@ namespace AppHostInfoGenerator {
 
 		void WriteComment(string? name, string? origValue) {
 			if (name is null) {
-				if (!(origValue is null))
+				if (origValue is not null)
 					output.Write($"// {origValue}");
 			}
 			else if (origValue is null)

@@ -42,7 +42,7 @@ namespace dnSpy.Analyzer.TreeNodes {
 
 			eventBackingField = GetBackingField(analyzedEvent);
 			var eventType = analyzedEvent.EventType.ResolveTypeDef();
-			if (!(eventType is null))
+			if (eventType is not null)
 				eventFiringMethod = eventType.Methods.First(md => md.Name == "Invoke");
 		}
 
@@ -73,21 +73,20 @@ namespace dnSpy.Analyzer.TreeNodes {
 				Instruction? foundInstr = null;
 				foreach (Instruction instr in method.Body.Instructions) {
 					Code code = instr.OpCode.Code;
-					if (code == Code.Ldfld || code == Code.Ldflda) {
-						IField? fr = instr.Operand as IField;
+					if ((code == Code.Ldfld || code == Code.Ldflda || code == Code.Ldtoken) && instr.Operand is IField fr && fr.IsField) {
 						if (CheckEquals(fr.ResolveFieldDef(), eventBackingField)) {
 							readBackingField = true;
 						}
 					}
 					if (readBackingField && (code == Code.Callvirt || code == Code.Call)) {
-						if (instr.Operand is IMethod mr && !(eventFiringMethod is null) && mr.Name == eventFiringMethod.Name && CheckEquals(mr.ResolveMethodDef(), eventFiringMethod)) {
+						if (instr.Operand is IMethod mr && eventFiringMethod is not null && mr.Name == eventFiringMethod.Name && CheckEquals(mr.ResolveMethodDef(), eventFiringMethod)) {
 							foundInstr = instr;
 							break;
 						}
 					}
 				}
 
-				if (!(foundInstr is null)) {
+				if (foundInstr is not null) {
 					if (GetOriginalCodeLocation(method) is MethodDef codeLocation && !HasAlreadyBeenFound(codeLocation)) {
 						var node = new MethodNode(codeLocation) { Context = Context };
 						if (codeLocation == method)
@@ -118,6 +117,6 @@ namespace dnSpy.Analyzer.TreeNodes {
 		}
 
 
-		public static bool CanShow(EventDef ev) => !(GetBackingField(ev) is null);
+		public static bool CanShow(EventDef ev) => GetBackingField(ev) is not null;
 	}
 }

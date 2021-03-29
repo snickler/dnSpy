@@ -52,7 +52,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 		}
 		bool useMixedMode;
 
-		public bool CanWritePdb => !(Module.PdbState is null);
+		public bool CanWritePdb => Module.PdbState is not null;
 
 		public bool WritePdb {
 			get => writePdb;
@@ -156,7 +156,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 
 			ModuleKind = new EnumListVM(moduleKindList, (a, b) => {
 				OnPropertyChanged(nameof(Extension));
-				PEHeadersOptions.Subsystem.SelectedItem = GetSubsystem((ModuleKind)ModuleKind.SelectedItem!);
+				PEHeadersOptions.Subsystem.SelectedItem = GetSubsystem((ModuleKind)ModuleKind!.SelectedItem!);
 				PEHeadersOptions.Characteristics = CharacteristicsHelper.GetCharacteristics(PEHeadersOptions.Characteristics ?? 0, (ModuleKind)ModuleKind.SelectedItem!);
 			});
 
@@ -197,7 +197,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 			else {
 				var options = new ModuleWriterOptions(Module);
 				CopyTo(options);
-				if (!(Module.ManagedEntryPoint is null) || Module.NativeEntryPoint == 0)
+				if (Module.ManagedEntryPoint is not null || Module.NativeEntryPoint == 0)
 					options.Cor20HeaderOptions.Flags &= ~ComImageFlags.NativeEntryPoint;
 				return AddOtherOptions(options);
 			}
@@ -288,7 +288,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 			this.defaultMachine = defaultMachine;
 			this.defaultSubsystem = defaultSubsystem;
 			Machine = new EnumListVM(machineList, (a, b) => {
-				Characteristics = CharacteristicsHelper.GetCharacteristics(Characteristics ?? 0, (dnlib.PE.Machine)Machine.SelectedItem!);
+				Characteristics = CharacteristicsHelper.GetCharacteristics(Characteristics ?? 0, (dnlib.PE.Machine)Machine!.SelectedItem!);
 			});
 			TimeDateStamp = new NullableUInt32VM(a => HasErrorUpdated());
 			PointerToSymbolTable = new NullableUInt32VM(a => HasErrorUpdated());
@@ -845,7 +845,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 				return null;
 			}
 			set {
-				if (!(value is null) && value != PreserveRids) {
+				if (value is not null && value != PreserveRids) {
 					if (value.Value)
 						Flags |= MetadataFlags.PreserveRids;
 					else
@@ -945,7 +945,7 @@ namespace dnSpy.AsmEditor.SaveModule {
 				Flags &= ~flag;
 
 			OnPropertyChanged(prop1);
-			if (!(prop2 is null))
+			if (prop2 is not null)
 				OnPropertyChanged(prop2);
 		}
 

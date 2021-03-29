@@ -51,11 +51,11 @@ namespace dndbg.DotNet {
 			var data = MDAPI.GetPermissionSetBlob(mdi, token) ?? Array.Empty<byte>();
 			var gpContext = new GenericParamContext();
 			var tmp = DeclSecurityReader.Read(readerModule, data, gpContext);
-			Interlocked.CompareExchange(ref securityAttributes, tmp, null);
+			Interlocked.CompareExchange(ref securityAttributes, tmp, null!);
 		}
 
 		public override byte[] GetBlob() {
-			if (!(blob is null))
+			if (blob is not null)
 				return blob;
 			var mdi = readerModule.MetaDataImport;
 			uint token = OriginalToken.Raw;

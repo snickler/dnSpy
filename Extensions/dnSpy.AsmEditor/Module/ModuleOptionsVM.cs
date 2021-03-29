@@ -404,7 +404,7 @@ namespace dnSpy.AsmEditor.Module {
 			string s;
 			if (ep is MethodDef method) {
 				var declType = method.DeclaringType;
-				if (!(declType is null))
+				if (declType is not null)
 					s = $"{method.Name} ({declType.FullName})";
 				else
 					s = method.Name;
@@ -428,10 +428,10 @@ namespace dnSpy.AsmEditor.Module {
 			this.options = new ModuleOptions();
 			origOptions = options;
 			ModuleKind = new EnumListVM(SaveModule.SaveModuleOptionsVM.moduleKindList, (a, b) => {
-				Characteristics = SaveModule.CharacteristicsHelper.GetCharacteristics(Characteristics, (dnlib.DotNet.ModuleKind)ModuleKind.SelectedItem!);
+				Characteristics = SaveModule.CharacteristicsHelper.GetCharacteristics(Characteristics, (dnlib.DotNet.ModuleKind)ModuleKind!.SelectedItem!);
 			});
 			Machine = new EnumListVM(SaveModule.PEHeadersOptionsVM.machineList, (a, b) => {
-				Characteristics = SaveModule.CharacteristicsHelper.GetCharacteristics(Characteristics, (dnlib.PE.Machine)Machine.SelectedItem!);
+				Characteristics = SaveModule.CharacteristicsHelper.GetCharacteristics(Characteristics, (dnlib.PE.Machine)Machine!.SelectedItem!);
 			});
 			Mvid = new NullableGuidVM(a => HasErrorUpdated());
 			EncId = new NullableGuidVM(a => HasErrorUpdated());
@@ -452,22 +452,22 @@ namespace dnSpy.AsmEditor.Module {
 			if (clrValues is null)
 				return;
 
-			if (!(Cor20HeaderRuntimeVersion is null))
+			if (Cor20HeaderRuntimeVersion is not null)
 				Cor20HeaderRuntimeVersion.Value = clrValues.Cor20HeaderRuntimeVersion;
-			if (!(TablesHeaderVersion is null))
+			if (TablesHeaderVersion is not null)
 				TablesHeaderVersion.Value = clrValues.TablesHeaderVersion;
 			RuntimeVersion = clrValues.RuntimeVersion;
 		}
 
 		void UpdateClrVersion() {
 			ClrVersion clrVersion = Module.ClrVersion.Unknown;
-			if (!(Cor20HeaderRuntimeVersion is null) && !Cor20HeaderRuntimeVersion.HasError && !(Cor20HeaderRuntimeVersion.Value is null) &&
-				!(TablesHeaderVersion is null) && !TablesHeaderVersion.HasError && !(TablesHeaderVersion.Value is null)) {
+			if (Cor20HeaderRuntimeVersion is not null && !Cor20HeaderRuntimeVersion.HasError && Cor20HeaderRuntimeVersion.Value is not null &&
+				TablesHeaderVersion is not null && !TablesHeaderVersion.HasError && TablesHeaderVersion.Value is not null) {
 				var clrValues = ClrVersionValues.Find(Cor20HeaderRuntimeVersion.Value.Value, TablesHeaderVersion.Value.Value, RuntimeVersion);
-				if (!(clrValues is null))
+				if (clrValues is not null)
 					clrVersion = clrValues.ClrVersion;
 			}
-			if (!(ClrVersion is null))
+			if (ClrVersion is not null)
 				ClrVersion.SelectedItem = clrVersion;
 		}
 
@@ -489,7 +489,7 @@ namespace dnSpy.AsmEditor.Module {
 
 			ManagedEntryPoint = options.ManagedEntryPoint;
 			NativeEntryPointRva.Value = (uint)options.NativeEntryPoint;
-			if (!(options.ManagedEntryPoint is null))
+			if (options.ManagedEntryPoint is not null)
 				EntryPointEnum = EntryPointType.Managed;
 			else if (options.NativeEntryPoint != 0)
 				EntryPointEnum = EntryPointType.Native;
@@ -542,7 +542,7 @@ namespace dnSpy.AsmEditor.Module {
 			if (dnlibTypePicker is null)
 				throw new InvalidOperationException();
 			var ep = dnlibTypePicker.GetDnlibType(dnSpy_AsmEditor_Resources.Pick_EntryPoint, new EntryPointDocumentTreeNodeFilter(module), ManagedEntryPoint, module);
-			if (!(ep is null)) {
+			if (ep is not null) {
 				ManagedEntryPoint = ep;
 				EntryPointEnum = EntryPointType.Managed;
 			}

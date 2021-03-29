@@ -127,7 +127,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			Add(new ContextMenuHandler {
 				Header = "res:CopyMetaDataToken",
 				HeaderPlural = "res:CopyMetaDataTokens",
-				Command = new RelayCommand(a => CopyOperandMDTokens((InstructionVM[])a), a => CopyOperandMDTokensCanExecute((InstructionVM[])a)),
+				Command = new RelayCommand(a => CopyOperandMDTokens((InstructionVM[])a!), a => CopyOperandMDTokensCanExecute((InstructionVM[])a!)),
 				InputGestureText = "res:ShortCutKeyCtrlM",
 				Modifiers = ModifierKeys.Control,
 				Key = Key.M,
@@ -135,7 +135,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			Add(new ContextMenuHandler {
 				Header = "res:CopyRVACommand",
 				HeaderPlural = "res:CopyRVAsCommand",
-				Command = new RelayCommand(a => CopyInstructionRVA((InstructionVM[])a), a => CopyInstructionRVACanExecute((InstructionVM[])a)),
+				Command = new RelayCommand(a => CopyInstructionRVA((InstructionVM[])a!), a => CopyInstructionRVACanExecute((InstructionVM[])a!)),
 				InputGestureText = "res:ShortCutKeyCtrlR",
 				Modifiers = ModifierKeys.Control,
 				Key = Key.R,
@@ -143,7 +143,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			Add(new ContextMenuHandler {
 				Header = "res:CopyFileOffsetCommand",
 				HeaderPlural = "res:CopyFileOffsetsCommand",
-				Command = new RelayCommand(a => CopyInstructionFileOffset((InstructionVM[])a), a => CopyInstructionFileOffsetCanExecute((InstructionVM[])a)),
+				Command = new RelayCommand(a => CopyInstructionFileOffset((InstructionVM[])a!), a => CopyInstructionFileOffsetCanExecute((InstructionVM[])a!)),
 				InputGestureText = "res:ShortCutKeyCtrlF",
 				Modifiers = ModifierKeys.Control,
 				Key = Key.F,
@@ -201,7 +201,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			}
 		}
 
-		bool CopyOperandMDTokensCanExecute(InstructionVM[] instrs) => instrs.Any(a => !(GetOperandMDToken(a.InstructionOperandVM) is null));
+		bool CopyOperandMDTokensCanExecute(InstructionVM[] instrs) => instrs.Any(a => GetOperandMDToken(a.InstructionOperandVM) is not null);
 
 		static uint? GetOperandMDToken(InstructionOperandVM op) {
 			switch (op.InstructionOperandType) {
@@ -236,7 +236,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 		}
 
 		void coll_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
-			if (!(e.NewItems is null))
+			if (e.NewItems is not null)
 				InitializeInstructions(e.NewItems);
 		}
 
@@ -341,7 +341,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			TypeSpec		= 0x00000080,
 		}
 
-		void ShowMenu(object parameter, InstructionOperandVM opvm, MenuCommandFlags flags) {
+		void ShowMenu(object? parameter, InstructionOperandVM opvm, MenuCommandFlags flags) {
 			var ctxMenu = new ContextMenu();
 			ctxMenu.SetResourceReference(DsImage.BackgroundBrushProperty, "ContextMenuRectangleFill");
 
@@ -409,7 +409,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			MemberRef? mr = opvm.Other as MemberRef;
 			if (opvm.Other is FieldDef fd)
 				mr = cilBodyVM.OwnerModule.Import(fd);
-			if (!(mr is null) && mr.FieldSig is null)
+			if (mr is not null && mr.FieldSig is null)
 				mr = null;
 			AddMemberRef(opvm, mr, true);
 		}
@@ -428,9 +428,9 @@ namespace dnSpy.AsmEditor.MethodBody {
 				mr = ms.Method as MemberRef;
 				md = ms.Method as MethodDef;
 			}
-			if (!(md is null))
+			if (md is not null)
 				mr = cilBodyVM.OwnerModule.Import(md);
-			if (!(mr is null) && mr.MethodSig is null)
+			if (mr is not null && mr.MethodSig is null)
 				mr = null;
 			AddMemberRef(opvm, mr, false);
 		}
@@ -481,7 +481,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			var opts = new MethodSigCreatorOptions(cilBodyVM.TypeSigCreatorOptions.Clone(dnSpy_AsmEditor_Resources.CreateMethodSig));
 			opts.CanHaveSentinel = true;
 			var sig = (MethodSig?)creator.Create(opts, opvm.Other as MethodSig);
-			if (!(sig is null))
+			if (sig is not null)
 				opvm.Other = sig;
 		}
 
@@ -496,7 +496,7 @@ namespace dnSpy.AsmEditor.MethodBody {
 			opvm.Other = data.GetSwitchList();
 		}
 
-		void IEditOperand.Edit(object parameter, InstructionOperandVM opvm) {
+		void IEditOperand.Edit(object? parameter, InstructionOperandVM opvm) {
 			MenuCommandFlags flags;
 			switch (opvm.InstructionOperandType) {
 			case InstructionOperandType.Field:

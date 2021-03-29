@@ -42,7 +42,7 @@ namespace dnSpy.Documents.Tabs.Dialogs {
 			get {
 				if (createdBy is null)
 					CalculateInfo();
-				Debug2.Assert(!(createdBy is null));
+				Debug2.Assert(createdBy is not null);
 				return createdBy;
 			}
 		}
@@ -52,7 +52,7 @@ namespace dnSpy.Documents.Tabs.Dialogs {
 			get {
 				if (fileVersion is null)
 					CalculateInfo();
-				Debug2.Assert(!(fileVersion is null));
+				Debug2.Assert(fileVersion is not null);
 				return fileVersion;
 			}
 		}
@@ -118,7 +118,7 @@ namespace dnSpy.Documents.Tabs.Dialogs {
 				createdBy = CalculateCreatedByFromAttribute() ?? string.Empty;
 		}
 
-		static string Filter(string s) {
+		static string Filter(string? s) {
 			if (s is null)
 				return string.Empty;
 			const int MAX = 512;

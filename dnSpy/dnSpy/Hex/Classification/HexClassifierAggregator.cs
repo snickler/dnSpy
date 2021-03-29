@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using dnSpy.Contracts.Hex;
 using dnSpy.Contracts.Hex.Classification;
@@ -47,7 +48,7 @@ namespace dnSpy.Hex.Classification {
 
 		sealed class HexClassificationSpanComparer : IComparer<HexClassificationSpan> {
 			public static readonly HexClassificationSpanComparer Instance = new HexClassificationSpanComparer();
-			public int Compare(HexClassificationSpan x, HexClassificationSpan y) => x.Span.Start - y.Span.Start;
+			public int Compare([AllowNull] HexClassificationSpan x, [AllowNull] HexClassificationSpan y) => x.Span.Start - y.Span.Start;
 		}
 
 		public override void GetClassificationSpans(List<HexClassificationSpan> result, HexClassificationContext context) =>
@@ -63,10 +64,10 @@ namespace dnSpy.Hex.Classification {
 			var list = new List<HexClassificationSpan>();
 
 			var taggerContext = new HexTaggerContext(context.Line, context.LineSpan);
-			var tags = !(cancellationToken is null) ? hexTagAggregator.GetAllTags(taggerContext, cancellationToken.Value) : hexTagAggregator.GetAllTags(taggerContext);
+			var tags = cancellationToken is not null ? hexTagAggregator.GetAllTags(taggerContext, cancellationToken.Value) : hexTagAggregator.GetAllTags(taggerContext);
 			foreach (var tagSpan in tags) {
 				var overlap = textSpan.Overlap(tagSpan.Span);
-				if (!(overlap is null))
+				if (overlap is not null)
 					list.Add(new HexClassificationSpan(overlap.Value, tagSpan.Tag.ClassificationType));
 			}
 

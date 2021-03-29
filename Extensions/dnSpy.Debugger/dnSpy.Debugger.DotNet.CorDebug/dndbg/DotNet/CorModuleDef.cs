@@ -187,7 +187,7 @@ namespace dndbg.DotNet {
 				return corModuleDefHelper.CorLib;
 
 			var asmRef = TryGetCorLibAssemblyRef();
-			if (!(asmRef is null))
+			if (asmRef is not null)
 				return asmRef;
 
 			return corModuleDefHelper.CorLib;
@@ -206,7 +206,7 @@ namespace dndbg.DotNet {
 					continue;
 
 				if ("mscorlib".Equals(asmRef.Name, StringComparison.OrdinalIgnoreCase)) {
-					if ((pktMscorlibDesktop.Equals(asmRef.PublicKeyOrToken) || pktMscorlibDotNetCore.Equals(asmRef.PublicKeyOrToken)) &&
+					if ((pktMscorlibDotNetFramework.Equals(asmRef.PublicKeyOrToken) || pktMscorlibDotNet.Equals(asmRef.PublicKeyOrToken)) &&
 						asmRef.Version != mscorlibWinMDVersion) {
 						if (bestMscorlib is null || asmRef.Version > bestMscorlib.Version)
 							bestMscorlib = asmRef;
@@ -216,13 +216,13 @@ namespace dndbg.DotNet {
 					bestNonMscorlib = asmRef;
 			}
 
-			if (!(bestMscorlib is null))
+			if (bestMscorlib is not null)
 				return bestMscorlib;
 			return bestNonMscorlib;
 		}
 		static readonly Version mscorlibWinMDVersion = new Version(0xFF, 0xFF, 0xFF, 0xFF);
-		static readonly PublicKeyToken pktMscorlibDesktop = new PublicKeyToken("b77a5c561934e089");
-		static readonly PublicKeyToken pktMscorlibDotNetCore = new PublicKeyToken("7cec85d7bea7798e");
+		static readonly PublicKeyToken pktMscorlibDotNetFramework = new PublicKeyToken("b77a5c561934e089");
+		static readonly PublicKeyToken pktMscorlibDotNet = new PublicKeyToken("7cec85d7bea7798e");
 
 		/// <summary>
 		/// Should be called after caller has added it to its assembly
@@ -319,7 +319,7 @@ namespace dndbg.DotNet {
 			var caBlob = MDAPI.GetCustomAttributeBlob(mdi, caToken, out uint typeToken) ?? Array.Empty<byte>();
 			var cat = ResolveToken(typeToken, gpContext) as ICustomAttributeType;
 			var ca = CustomAttributeReader.Read(this, caBlob, cat, gpContext);
-			Debug2.Assert(!(ca is null));
+			Debug2.Assert(ca is not null);
 			return ca;
 		}
 
@@ -399,7 +399,7 @@ namespace dndbg.DotNet {
 			if (mdi2 is null)
 				return MDHeaderRuntimeVersion.MS_CLR_10;    // Could be .NET 1.0 or 1.1 but choose 1.0
 			var s = MDAPI.GetModuleVersionString(mdi2);
-			if (!(s is null))
+			if (s is not null)
 				return s;
 			return MDHeaderRuntimeVersion.MS_CLR_20;
 		}
@@ -638,7 +638,7 @@ namespace dndbg.DotNet {
 			}
 
 			if (ridToInterfaceImpl.TryGetValue(rid, out cii)) {
-				if (!(cii is null))
+				if (cii is not null)
 					return cii;
 				if (DisableMDAPICalls)
 					return null;
@@ -673,7 +673,7 @@ namespace dndbg.DotNet {
 			}
 
 			if (ridToMemberRef.TryGetValue(rid, out cmr)) {
-				if (!(cmr is null))
+				if (cmr is not null)
 					return cmr;
 				if (DisableMDAPICalls)
 					return null;
@@ -720,7 +720,7 @@ namespace dndbg.DotNet {
 			}
 
 			if (ridToStandAloneSig.TryGetValue(rid, out cts)) {
-				if (!(cts is null))
+				if (cts is not null)
 					return cts;
 				if (DisableMDAPICalls)
 					return null;
@@ -793,7 +793,7 @@ namespace dndbg.DotNet {
 			}
 
 			if (ridToTypeSpec.TryGetValue(rid, out cts)) {
-				if (!(cts is null))
+				if (cts is not null)
 					return cts;
 				if (DisableMDAPICalls)
 					return null;
@@ -943,7 +943,7 @@ namespace dndbg.DotNet {
 		protected override void InitializeTypes() {
 			var list = GetNonNestedClassRids();
 			var tmp = new LazyList<TypeDef?, uint[]>(list.Length, this, list, (list2, index) => ResolveTypeDef(list2[index]));
-			Interlocked.CompareExchange(ref types, tmp, null);
+			Interlocked.CompareExchange(ref types, tmp, null!);
 		}
 
 		uint[] GetNonNestedClassRids() {
@@ -965,7 +965,7 @@ namespace dndbg.DotNet {
 		}
 
 		void InitializeTypeTables() {
-			if (!(ridToNested is null))
+			if (ridToNested is not null)
 				return;
 
 			var allTypes = MDAPI.GetTypeDefTokens(mdi);
@@ -1075,7 +1075,7 @@ namespace dndbg.DotNet {
 		protected override void InitializeExportedTypes() {
 			var list = MDAPI.GetExportedTypeRids(MetaDataAssemblyImport);
 			var tmp = new LazyList<ExportedType?, uint[]>(list.Length, list, (list2, i) => ResolveExportedType(list2[i]));
-			Interlocked.CompareExchange(ref exportedTypes, tmp, null);
+			Interlocked.CompareExchange(ref exportedTypes, tmp, null!);
 			lastExportedTypeRidInList = list.Length == 0 ? 0 : list.Max();
 		}
 
@@ -1096,7 +1096,7 @@ namespace dndbg.DotNet {
 				if (!IsValidToken(new MDToken(Table.ExportedType, rid).Raw))
 					break;
 				var et = ResolveExportedType(rid);
-				Debug2.Assert(!(et is null));
+				Debug2.Assert(et is not null);
 				if (et is null)
 					break;
 				ExportedTypes.Add(et);
@@ -1109,7 +1109,7 @@ namespace dndbg.DotNet {
 		protected override void InitializeResources() {
 			var list = MDAPI.GetManifestResourceRids(MetaDataAssemblyImport);
 			var tmp = new ResourceCollection(list.Length, null, (ctx, i) => CreateResource((uint)i + 1));
-			Interlocked.CompareExchange(ref resources, tmp, null);
+			Interlocked.CompareExchange(ref resources, tmp, null!);
 			lastManifestResourceRidInList = list.Length == 0 ? 0 : list.Max();
 		}
 
@@ -1257,7 +1257,7 @@ namespace dndbg.DotNet {
 			const bool calledFromLoadClass = false;
 			var ctd = InitializeTypeDef(rid, calledFromLoadClass, out bool created);
 			// If it was created, Initialize() has already been called
-			if (!created && !(ctd is null) && !ctd.CompletelyLoaded)
+			if (!created && ctd is not null && !ctd.CompletelyLoaded)
 				Initialize(ctd, created, calledFromLoadClass);
 		}
 

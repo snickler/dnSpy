@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using dnSpy.Contracts.Decompiler;
 using dnSpy.Contracts.Text;
 using Microsoft.VisualStudio.Text;
@@ -146,7 +147,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 
 			public override bool Equals(object? obj) {
 				var other = obj as XmlNameTextViewerReference;
-				return !(other is null) && nsRef.Equals(other.nsRef) && name == other.name && refKind == other.refKind;
+				return other is not null && nsRef.Equals(other.nsRef) && name == other.name && refKind == other.refKind;
 			}
 
 			public override int GetHashCode() => nsRef.GetHashCode() ^ name.GetHashCode() ^ (int)refKind;
@@ -157,7 +158,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 			public XmlNamespaceTextViewerReference(XmlNamespaceReference nsRef) => XmlNamespaceReference = nsRef ?? throw new ArgumentNullException(nameof(nsRef));
 			public override bool Equals(object? obj) {
 				var other = obj as XmlNamespaceTextViewerReference;
-				return !(other is null) && XmlNamespaceReference.Equals(other.XmlNamespaceReference);
+				return other is not null && XmlNamespaceReference.Equals(other.XmlNamespaceReference);
 			}
 			public override int GetHashCode() => XmlNamespaceReference.GetHashCode();
 		}
@@ -434,7 +435,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 			public XmlNamespaceDefinition GetOrCreate(string xmlNsAlias) {
 				XmlNamespaces? curr = this;
 				XmlNamespaceDefinition? def;
-				while (!(curr is null)) {
+				while (curr is not null) {
 					if (curr.namespaces.TryGetValue(xmlNsAlias, out def))
 						return def;
 					curr = curr.previous;
@@ -461,7 +462,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 			}
 			public override bool Equals(object? obj) {
 				var other = obj as XmlNamespaceDefinition;
-				return !(other is null) && Name == other.Name;
+				return other is not null && Name == other.Name;
 			}
 			public override int GetHashCode() => Name.GetHashCode();
 		}
@@ -470,14 +471,14 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 			public string Alias { get; }
 			public XmlNamespaceDefinition? Definition { get; set; }
 			public XmlNamespaceReference(string alias) => Alias = alias ?? throw new ArgumentNullException(nameof(alias));
-			public bool Equals(XmlNamespaceReference other) => Equals(Definition, other.Definition);
+			public bool Equals([AllowNull] XmlNamespaceReference other) => Equals(Definition, other?.Definition);
 			public override bool Equals(object? obj) => obj is XmlNamespaceReference && Equals((XmlNamespaceReference)obj);
 			public override int GetHashCode() => Definition?.GetHashCode() ?? 0;
 		}
 
 		XmlNamespaceReference GetAttributeNamespaceReference(Span aliasSpan) {
 			var nsRef = TryGetAttributeNamespaceReference(aliasSpan);
-			if (!(nsRef is null))
+			if (nsRef is not null)
 				return nsRef;
 			var nsName = GetSubstring(aliasSpan);
 			nsRef = new XmlNamespaceReference(nsName);
@@ -548,7 +549,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 					}
 					else {
 						SaveReference(name, XmlNameReferenceKind.Attribute, findDefsOnly: false);
-						if (!(xamlAttributeParser is null))
+						if (xamlAttributeParser is not null)
 							ParseXamlString(new Span(value.Span.Start + 1, value.Span.Length - 2));
 					}
 					SaveString(value);
@@ -572,7 +573,7 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 		}
 
 		void ParseXamlString(Span span) {
-			Debug2.Assert(!(xamlAttributeParser is null));
+			Debug2.Assert(xamlAttributeParser is not null);
 
 			// Absolute minimum is "{x}", but most likely it's longer
 			if (span.Length <= 3)
@@ -602,20 +603,20 @@ namespace dnSpy.Documents.Tabs.DocViewer {
 
 		void Undo(in Token token) {
 			Debug2.Assert(cachedToken is null);
-			if (!(cachedToken is null))
+			if (cachedToken is not null)
 				throw new InvalidOperationException();
 			cachedToken = token;
 		}
 
 		Token PeekToken() {
-			if (!(cachedToken is null))
+			if (cachedToken is not null)
 				return cachedToken.Value;
 			cachedToken = GetNextToken();
 			return cachedToken.Value;
 		}
 
 		Token GetNextToken() {
-			if (!(cachedToken is null)) {
+			if (cachedToken is not null) {
 				var token = cachedToken.Value;
 				cachedToken = null;
 				return token;

@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using dnlib.DotNet;
 using dnSpy.Contracts.Decompiler;
@@ -113,7 +114,7 @@ namespace dnSpy.Decompiler {
 			var methodStatements = FindByLineAndTextOffset(scopeSpan, lineStartPos, lineEndPos, textPosition);
 			if (methodStatements is null && lineStartPos != textPosition)
 				methodStatements = FindByLineAndTextOffset(scopeSpan, lineStartPos, lineEndPos, lineStartPos);
-			if (!(methodStatements is null) && methodStatements.Count > 1) {
+			if (methodStatements is not null && methodStatements.Count > 1) {
 				// If there are two methods (get; set;) on the same line, only return one of them
 				var exact = methodStatements.Where(a => a.Statement.TextSpan != scopeSpan && a.Statement.TextSpan.Contains(textPosition)).ToList();
 				if (exact.Count != 0)
@@ -126,7 +127,7 @@ namespace dnSpy.Decompiler {
 
 			methodStatements = Filter(methodStatements, textPosition);
 
-			if (!(methodStatements is null)) {
+			if (methodStatements is not null) {
 				if ((options & FindByTextPositionOptions.SameMethod) == 0 || IsSameMethod(methodStatements, textPosition))
 					return methodStatements;
 			}
@@ -135,7 +136,7 @@ namespace dnSpy.Decompiler {
 
 		TextSpan GetScopeSpan(int textPosition) {
 			int stmtIndex = GetScopeSpanStartIndex(textPosition);
-			Debug2.Assert(!(sortedStatements is null));
+			Debug2.Assert(sortedStatements is not null);
 			if (stmtIndex >= 0) {
 				var scopeSpan = sortedStatements[stmtIndex].Statement.TextSpan;
 				if (scopeSpan.Contains(textPosition))
@@ -172,7 +173,7 @@ namespace dnSpy.Decompiler {
 			if (methodStatements.Count == 0)
 				return false;
 			var methodInfo = TryGetMethodDebugInfo(methodStatements[0].Method);
-			Debug2.Assert(!(methodInfo is null));
+			Debug2.Assert(methodInfo is not null);
 			if (methodInfo is null)
 				return false;
 			var methodSpan = methodInfo.Span;
@@ -195,7 +196,7 @@ namespace dnSpy.Decompiler {
 			foreach (var kv in dict) {
 				var info = kv.Value;
 				var sourceStatement = info.GetSourceStatementByTextOffset(lineStart, lineEnd, textPosition);
-				if (!(sourceStatement is null) && sourceStatement.Value.TextSpan.Start >= scopeSpan.Start && sourceStatement.Value.TextSpan.End <= scopeSpan.End) {
+				if (sourceStatement is not null && sourceStatement.Value.TextSpan.Start >= scopeSpan.Start && sourceStatement.Value.TextSpan.End <= scopeSpan.End) {
 					if (list is null)
 						list = new List<MethodSourceStatement>();
 					list.Add(new MethodSourceStatement(info.Method, sourceStatement.Value));
@@ -221,7 +222,7 @@ namespace dnSpy.Decompiler {
 							methodSourceStatement = new MethodSourceStatement(info.Method, sourceStatement);
 					}
 				}
-				if (!(methodSourceStatement is null)) {
+				if (methodSourceStatement is not null) {
 					if (list.Count == 0)
 						list.Add(methodSourceStatement.Value);
 					else if (methodSourceStatement.Value.Statement.TextSpan.Start == list[0].Statement.TextSpan.Start)
@@ -269,7 +270,7 @@ namespace dnSpy.Decompiler {
 			int position = span.Start;
 			int end = span.End;
 			int index = GetStartIndex(position);
-			Debug2.Assert(!(sortedStatements is null));
+			Debug2.Assert(sortedStatements is not null);
 			if (index < 0)
 				yield break;
 			var array = sortedStatements;
@@ -306,7 +307,7 @@ namespace dnSpy.Decompiler {
 		int GetScopeSpanStartIndex(int position) {
 			if (sortedStatements is null)
 				InitializeSortedStatements();
-			Debug2.Assert(!(sortedStatements is null));
+			Debug2.Assert(sortedStatements is not null);
 
 			int index = GetStartIndexCore(position);
 			var array = sortedStatements;
@@ -337,7 +338,7 @@ namespace dnSpy.Decompiler {
 		}
 
 		int GetStartIndexCore(int position) {
-			Debug2.Assert(!(sortedStatements is null));
+			Debug2.Assert(sortedStatements is not null);
 			var array = sortedStatements;
 			int lo = 0, hi = array.Length - 1;
 			while (lo <= hi) {
@@ -361,7 +362,7 @@ namespace dnSpy.Decompiler {
 
 		void InitializeSortedStatements() {
 			Debug2.Assert(sortedStatements is null);
-			if (!(sortedStatements is null))
+			if (sortedStatements is not null)
 				return;
 			var list = new List<MethodSourceStatement>();
 			foreach (var kv in dict) {
@@ -376,7 +377,7 @@ namespace dnSpy.Decompiler {
 		sealed class MethodSourceStatementComparer : IComparer<MethodSourceStatement> {
 			public static readonly MethodSourceStatementComparer Instance = new MethodSourceStatementComparer();
 
-			public int Compare(MethodSourceStatement x, MethodSourceStatement y) {
+			public int Compare([AllowNull] MethodSourceStatement x, [AllowNull] MethodSourceStatement y) {
 				var tsx = x.Statement.TextSpan;
 				var tsy = y.Statement.TextSpan;
 				int c = tsx.Start - tsy.Start;

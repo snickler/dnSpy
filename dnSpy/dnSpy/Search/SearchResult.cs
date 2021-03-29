@@ -19,6 +19,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using dnlib.DotNet;
 using dnSpy.Contracts.Decompiler;
 using dnSpy.Contracts.Documents;
@@ -77,7 +78,7 @@ namespace dnSpy.Search {
 					return module.Location;
 				if (!string.IsNullOrWhiteSpace(module.Name))
 					return module.Name;
-				if (!(module.Assembly is null) && !string.IsNullOrWhiteSpace(module.Assembly.Name))
+				if (module.Assembly is not null && !string.IsNullOrWhiteSpace(module.Assembly.Name))
 					return module.Assembly.Name;
 				return null;
 			}
@@ -117,7 +118,7 @@ namespace dnSpy.Search {
 			}
 
 			if (o is TypeDef td) {
-				Debug2.Assert(!(Context.Decompiler is null));
+				Debug2.Assert(Context.Decompiler is not null);
 				Context.Decompiler.WriteType(output, td, includeNamespace);
 				return;
 			}
@@ -201,7 +202,7 @@ namespace dnSpy.Search {
 		public static SearchResult CreateMessage(SearchResultContext context, string msg, object color, bool first) =>
 			new MessageSearchResult(msg, color, first) { Context = context };
 
-		public int CompareTo(ISearchResult other) {
+		public int CompareTo([AllowNull] ISearchResult other) {
 			if (other is null)
 				return -1;
 			int o1 = GetOrder(this);
